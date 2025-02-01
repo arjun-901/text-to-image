@@ -1,0 +1,9 @@
+./clint/.env
+./server/.env
+./clint/node_modules
+./server/node_modules
+
+/clint/.env
+node_modules/
+
+*.env
