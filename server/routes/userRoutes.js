@@ -1,5 +1,5 @@
 import express from 'express'; // Importing express framework
-import { registerUser, loginUser, userCredit, paymentRazorpay, verifyPayment, createSupport, createReturn, getUserData, adminLogin } from "../controllers/userController.js"; // Importing user controller functions
+import { registerUser, loginUser, userCredit, paymentRazorpay, verifyPayment, createSupport, createReturn, getUserData } from "../controllers/userController.js"; // Importing user controller functions
 import userAuth from '../middlewares/auth.js';
 
 const userRouter = express.Router(); // Creating a new router object
@@ -11,7 +11,7 @@ userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 
 // Route for admin login
-userRouter.post('/admin-login', adminLogin);
+
 
 userRouter.get('/credits',userAuth,userCredit);
 

@@ -117,9 +117,11 @@ const userCredit = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 }
+// console.log('RAZORPAY_KEY_ID:', process.env.VITE_RAZORPAY_KEY_ID);
+// console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
 
 const razorpayInstance = new razorpay({
-    key_id: "rzp_test_uVWSFLoVatlJ77",  // Add this from your Razorpay dashboard
+    key_id: process.env.VITE_RAZORPAY_KEY_ID,  // Ensure this is set in your environment variables
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
@@ -209,80 +211,86 @@ const paymentRazorpay = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Payment creation error:', error);
-        res.json({ 
-            success: false, 
-            message: 'Failed to create payment. Please try again.' 
-        });
+        // console.error('Payment creation error:', error);
+        // res.json({ 
+        //     success: false, 
+        //     message: 'Failed to create payment. Please try again.' 
+        // });
     }
 };
 
 const verifyPayment = async (req, res) => {
     try {
-        const { response } = req.body;
-        const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
-
-        // Get the pending order data
-        const orderData = global.pendingOrders.get(razorpay_order_id);
-        if (!orderData) {
-            return res.json({ 
-                success: false, 
-                message: 'Order not found' 
-            });
+      console.log('Request body:', req.body); // Log the request body
+      const { response } = req.body;
+      if (!response) {
+        return res.json({ success: false, message: 'Response object is undefined' });
+      }
+      const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = response;
+  
+      const orderData = global.pendingOrders.get(razorpay_order_id);
+      if (!orderData) {
+        return res.json({ success: false, message: 'Order not found' });
+      }
+  
+      // Verify payment signature
+      const body = razorpay_order_id + "|" + razorpay_payment_id;
+      const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+                                      .update(body.toString())
+                                      .digest('hex');
+  
+      if (expectedSignature !== razorpay_signature) {
+        return res.json({ success: false, message: 'Invalid payment signature' });
+      }
+  
+      // Create transaction after successful payment
+      const transaction = await transactionModel.create({
+        userId: orderData.userId,
+        plan: orderData.plan,
+        amount: orderData.amount,
+        amountUSD: orderData.amountUSD,
+        credits: orderData.credits,
+        receipt: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        currency: orderData.currency,
+        conversionRate: orderData.conversionRate,
+        payment: true
+      });
+  
+      const user = await userModel.findById(orderData.userId);
+      if (!user) {
+        return res.json({ success: false, message: 'User not found' });
+      }
+  
+      const updatedCredits = user.credits + orderData.credits;
+      await userModel.findByIdAndUpdate(
+        orderData.userId,
+        { credits: updatedCredits },
+        { new: true }
+      );
+  
+      global.pendingOrders.delete(razorpay_order_id);
+  
+      return res.json({ 
+        success: true, 
+        message: 'Payment verified successfully',
+        credits: updatedCredits,
+        transaction: {
+          id: transaction._id,
+          plan: transaction.plan,
+          amountUSD: transaction.amountUSD,
+          amountINR: transaction.amount,
+          credits: transaction.credits,
+          date: transaction.date
         }
-
-        // Verify payment signature here if needed
-        
-        // Create transaction only after successful payment
-        const transaction = await transactionModel.create({
-            userId: orderData.userId,
-            plan: orderData.plan,
-            amount: orderData.amount,
-            amountUSD: orderData.amountUSD,
-            credits: orderData.credits,
-            receipt: razorpay_order_id,
-            paymentId: razorpay_payment_id,
-            currency: orderData.currency,
-            conversionRate: orderData.conversionRate,
-            payment: true
-        });
-
-        // Update user credits
-        const user = await userModel.findById(orderData.userId);
-        if (!user) {
-            return res.json({ success: false, message: 'User not found' });
-        }
-
-        const updatedCredits = user.credits + orderData.credits;
-        await userModel.findByIdAndUpdate(
-            orderData.userId,
-            { credits: updatedCredits },
-            { new: true }
-        );
-
-        // Remove from pending orders
-        global.pendingOrders.delete(razorpay_order_id);
-
-        return res.json({ 
-            success: true, 
-            message: 'Payment verified successfully',
-            credits: updatedCredits,
-            transaction: {
-                id: transaction._id,
-                plan: transaction.plan,
-                amountUSD: transaction.amountUSD,
-                amountINR: transaction.amount,
-                credits: transaction.credits,
-                date: transaction.date
-            }
-        });
-
+      });
+  
     } catch (error) {
-        console.error('Payment verification error:', error);
-        res.json({ success: false, message: 'Payment verification failed' });
+      console.error('Payment verification error:', error);
+      res.json({ success: false, message: 'Payment verification failed' });
     }
-};
-
+  };
+  
 // Add this helper function to generate request ID
 const generateRequestId = (prefix) => {
     const timestamp = Date.now().toString(36);
@@ -418,35 +426,6 @@ const getUserData = async (req, res) => {
         res.json({ success: false, message: error.message });
     }
 };
-
-const adminLogin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // Hardcoded admin credentials
-        const adminEmail = "admin@example.com";
-        const adminPassword = "adminpassword";
-
-        if (email === adminEmail && password === adminPassword) {
-            const token = jwt.sign({ id: "admin" }, process.env.JWT_SECRET);
-            return res.json({ 
-                success: true, 
-                token, 
-                user: { 
-                    name: "Admin",
-                    role: "admin"
-                } 
-            });
-        } else {
-            return res.json({ success: false, message: 'Invalid admin credentials' });
-        }
-
-    } catch (error) {
-        console.error('Admin login error:', error);
-        return res.status(500).json({ success: false, message: 'Server error, please try again' });
-    }
-};
-
 export { 
     registerUser, 
     loginUser, 
@@ -456,5 +435,4 @@ export {
     createSupport, 
     createReturn, 
     getUserData,
-    adminLogin // Export the new function
 };

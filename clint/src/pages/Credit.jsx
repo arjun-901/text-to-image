@@ -15,7 +15,7 @@ const Credit = () => {
   const initPay = async (order) => {
     try {
       const options = {
-        key: "rzp_test_uVWSFLoVatlJ77",
+        key: "rzp_live_f7M3GVcJCve1Ua",
         amount: order.amount,
         currency: order.currency,
         name: "Luxoximg Credits",
