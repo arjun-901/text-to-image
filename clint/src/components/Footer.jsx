@@ -41,10 +41,14 @@ const Footer = () => {
         {/* Social Media Section */}         
         <div className='space-y-3'>           
           <p className='font-medium'>Social Media</p>           
-          <div className='flex gap-4'>             
+          <div className='flex gap-4'>      
+            <a href="https://www.facebook.com/arjun9654abc">
             <img className='cursor-pointer h-5 w-5 hover:opacity-80' src={assets.facebook_icon} alt='' />             
-            <img className='cursor-pointer h-5 w-5 hover:opacity-80' src={assets.twitter_icon} alt='' />             
-            <img className='cursor-pointer h-5 w-5 hover:opacity-80' src={assets.instagram_icon} alt='' />           
+            </a>  
+            <a href="https://www.instagram.com/stories/arjun__maurya_11/">
+            <img className='cursor-pointer h-5 w-5 hover:opacity-80' src={assets.instagram_icon} alt='' />             
+            </a>
+            
           </div>         
         </div>       
       </div>        

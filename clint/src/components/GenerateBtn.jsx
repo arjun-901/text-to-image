@@ -1,70 +1,40 @@
-import React from 'react'
-import { assets } from '../assets/assets'
+import React, { useState, useEffect } from 'react';
 
 const GenerateBtn = () => {
+    const [usd, setUsd] = useState(1);
+    const [inr, setInr] = useState(0);
+    const [rate, setRate] = useState(0);
+
+    useEffect(() => {
+        // Fetch the exchange rate from a public API
+        fetch('https://api.exchangerate-api.com/v4/latest/USD')
+            .then(response => response.json())
+            .then(data => setRate(data.rates.INR))
+            .catch(error => console.error('Error fetching exchange rate:', error));
+    }, []);
+
+    useEffect(() => {
+        setInr((usd * rate).toFixed(2));
+    }, [usd, rate]);
+
     return (
         <div>
             <hr />
             <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-                      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                        Meet the Developer
-                      </h2>
-                      <div className="flex flex-col items-center">
-                        <img
-                          src={assets.developer}
-                          alt="Developer"
-                          width={100}
-                          height={100}
-                          className="rounded-lg mb-2"
-                        />
-                        <p className="text-gray-800 font-semibold">Arjun Maurya</p>
-                      </div>
-                      <div className="mt-4 text-center">
-                        <p className="text-gray-600 mb-2">
-                          I am a full-stack developer working on creating a text-to-image
-                          application, which allows users to generate images from textual
-                          descriptions. The goal is to provide a seamless and interactive
-                          experience, where creativity meets technology.
-                        </p>
-                        <p className="text-gray-600 mb-2">
-                          Learn more:
-                          <a
-                            href="https://www.linkedin.com/in/arjun-maurya-8b1716299/"
-                            className="text-blue-500 hover:underline"
-                          >
-                            Developer Portfolio
-                          </a>
-                        </p>
-                        
-                        <div className="mt-4">
-                          <a
-                            href="https://www.linkedin.com/in/arjun-maurya-8b1716299/"
-                            className="text-blue-500 hover:underline mr-4"
-                          >
-                            LinkedIn
-                          </a>
-                          <a
-                            href="https://www.instagram.com/arjun__maurya_11/"
-                            className="text-blue-500 hover:underline mr-4"
-                          >
-                            Instagram
-                          </a>
-                          <a
-                            href="https://github.com/arjun-901"
-                            className="text-blue-500 hover:underline"
-                          >
-                            GitHub
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-            
+                <h1 className="text-3xl text-center mb-4">Try it, <span className='text-green-600'>Convert dollor to</span> <span className='text-orange-500'>Rupess</span></h1>
+                <div className="w-full max-w-xs">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">USD:</label>
+                    <input 
+                        type="number" 
+                        value={usd} 
+                        onChange={(e) => setUsd(e.target.value)} 
+                        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+                    />
+                    <p className="mt-4 text-lg font-semibold">INR: <span className="text-green-600">{inr}</span></p>
+                </div>
+            </div>
         </div>
-        // <div className='flex flex-col items-center'>
-        //   <h1 className="text-3xl text-center">Try it,<span className='text-green-600'>see</span>  the <span className='text-orange-500'>magic!</span> </h1>
-            
-        // </div>
-    )
-}
+    );
+};
 
-export default GenerateBtn
+export default GenerateBtn;

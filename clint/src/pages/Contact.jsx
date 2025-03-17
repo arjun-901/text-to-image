@@ -2,8 +2,8 @@ import React from "react";
 
 const Contact = () => {
   return (
-    <div className="min-h-screen  flex items-center justify-center">
-      <div className=" p-8 rounded-lg shadow-lg w-full max-w-2xl">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="p-8 rounded-lg shadow-lg w-full max-w-2xl">
         <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
           Contact Us
         </h1>
@@ -16,7 +16,7 @@ const Contact = () => {
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Email</h2>
             <p className="text-gray-600">
-              For inquiries, you can email us at:{" "}
+              For inquiries, you can email us at: {" "}
               <a
                 href="mailto:kushwaha9654abc@gmail.com"
                 className="text-blue-600 hover:underline"
@@ -28,13 +28,23 @@ const Contact = () => {
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Phone</h2>
             <p className="text-gray-600">
-              Reach us by phone at:{" "}
+              Reach us by phone at: {" "}
               <a
                 href=""
                 className="text-blue-600 hover:underline"
               >
                 9454-603-952
               </a>
+            </p>
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800">Address</h2>
+            <p className="text-gray-600">
+              Our operational address in India:
+              <br />Office -GITM , Lucknow, Uttar Pradesh, India
+              <br /> Pin Code: 226028
+
+
             </p>
           </div>
         </div>
