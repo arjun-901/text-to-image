@@ -41,7 +41,7 @@ const Contact = () => {
             <h2 className="text-xl font-semibold text-gray-800">Address</h2>
             <p className="text-gray-600">
               Our operational address in India:
-              <br />Office -GITM , Lucknow, Uttar Pradesh, India
+              <br />Office -Anora Kala, Lucknow, Uttar Pradesh, India
               <br /> Pin Code: 226028
 
 
